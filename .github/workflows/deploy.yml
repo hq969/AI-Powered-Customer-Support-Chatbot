@@ -1,0 +1,38 @@
+name: ECS Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build -t customer-support-backend ./backend
+          docker tag customer-support-backend:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/customer-support-backend:latest
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com
+          docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/customer-support-backend:latest
+
+      - name: Build Frontend Docker Image
+        run: |
+          docker build -t customer-support-frontend ./frontend
+          docker tag customer-support-frontend:latest <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/customer-support-frontend:latest
+          docker push <aws_account_id>.dkr.ecr.us-east-1.amazonaws.com/customer-support-frontend:latest
+
+      - name: Update ECS Service
+        run: |
+          aws ecs update-service --cluster customer-support-chatbot-cluster --service backend-service --force-new-deployment
+          aws ecs update-service --cluster customer-support-chatbot-cluster --service frontend-service --force-new-deployment
