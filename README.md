@@ -184,10 +184,6 @@ jobs:
 ## 👨‍💻 Author
 
 Built by **Harsh Sonkar** ⚡
-#AI #LangChain #ChromaDB #OpenAI #ReactJS #AWS #MachineLearning #RAG #FinTech #CustomerSupport
 
 ---
 
-I can also create a **ready-to-post LinkedIn version with this ECS + CI/CD info included** so it highlights your **production deployment skills**.
-
-Do you want me to do that next?
